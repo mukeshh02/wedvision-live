@@ -1,73 +1,33 @@
 (() => {
  const allowMotion=!matchMedia('(prefers-reduced-motion: reduce)').matches;
  const root=document.querySelector('.journey');
- const scrollRegion=root?.querySelector('.journey-scroll');
- const pin=root?.querySelector('.journey-pin');
- const scene=root?.querySelector('.journey-scene');
- if(!root||!scrollRegion||!pin||!scene)return;
+ if(!root)return;
+ const scrollRegion=root.querySelector('.journey-scroll'),pin=root.querySelector('.journey-pin'),scene=root.querySelector('.journey-scene');
  const steps=[
-  {title:'A conversation becomes a client.',kicker:'INQUIRY RECEIVED',status:'Organized',project:'New inquiry',owner:'Your business',event:'Client details, in one place.',sub:'No message left to search for.',reply:'Your inquiry is with us. Let’s talk.',update:'Inquiry organized',caption:'An inquiry becomes an organized client record.',icon:'person'},
-  {title:'The same inquiry. Now a project.',kicker:'PROJECT CREATED',status:'Tracked',project:'Project created',owner:'Your business',event:'A clear next step for every wedding.',sub:'Your client and project stay connected.',reply:'Your wedding project is ready. We’ll keep you updated.',update:'Project created',caption:'The client record becomes a project your team can follow.',icon:'plan'},
-  {title:'The right files. The right people.',kicker:'TEAM & FILES CONNECTED',status:'In progress',project:'Editing in progress',owner:'Your editor',event:'Editor assigned. Files shared.',sub:'Everyone knows what they’re working on.',reply:'Your photos are with our editor. Your story is coming together.',update:'Team & files connected',caption:'Your editor, project and wedding files connect in the same workflow.',icon:'team'},
-  {title:'From your team. To your client.',kicker:'GALLERY SHARED',status:'Delivered',project:'Gallery shared',owner:'Your client',event:'Your gallery is ready to share.',sub:'Delivery stays connected to the project.',reply:'Your wedding gallery is ready. Here’s your story.',update:'Gallery shared with client',caption:'The finished wedding gallery reaches your client.',icon:'gallery'}
+ {title:'Everything stops at you.',status:'Waiting',caption:'Every decision comes back to you.',label:'Inquiries, follow-ups, approvals, payments, team and delivery all waiting for the business owner.'},
+ {title:'The system connects the work.',status:'Moving',caption:'Clear responsibilities. Clear next steps.',label:'WedVision connects all six business functions in a custom system. The owner has an overview while the team and work move forward.'},
+ {title:'More work. Still in control.',status:'Connected',caption:'New work enters. The flow keeps moving.',label:'New inquiries and weddings join the connected workflow without creating another queue around the business owner.'}
  ];
  const buttons=[...root.querySelectorAll('[data-journey-step]')];
- let current=-1;
- let animationFrame=0;
- const fields={title:'[data-stage-title]',kicker:'.journey-kicker',status:'[data-stage-status]',project:'[data-project-label]',owner:'[data-owner-label]',event:'[data-event-title]',sub:'[data-event-subtitle]',reply:'[data-chat-reply]',update:'[data-chat-update]',caption:'[data-stage-description]'};
- function setStep(index,animate=true){
-  index=Math.max(0,Math.min(steps.length-1,index));
-  if(index===current)return;
-  const first=current===-1;
-  current=index;
-  scene.dataset.step=String(index);
-  root.dataset.currentStep=String(index);
-  const state=steps[index];
-  for(const [key,selector] of Object.entries(fields)){
-   const element=root.querySelector(selector);
-   element.textContent=state[key];
-   if(allowMotion&&animate&&!first&&element.animate&&['title','reply','event'].includes(key))element.animate([{opacity:.35,translate:'0 4px'},{opacity:1,translate:'0 0'}],{duration:500,easing:'ease-out'});
-  }
-  root.querySelector('.event-symbol use').setAttribute('href','#'+state.icon);
-  root.querySelector('.mini-avatar').textContent=index===2?'E':index===3?'C':'Y';
-  buttons.forEach((button,i)=>{
-   button.setAttribute('aria-pressed',String(i===index));
-   button.classList.toggle('passed',i<index);
-  });
-  if(allowMotion&&animate&&!first){
-   scene.classList.remove('in-transit');
-   void scene.offsetWidth;
-   scene.classList.add('in-transit');
-  }
+ let current=-1,frame=0;
+ function setStep(index){
+  index=Math.max(0,Math.min(2,index));if(index===current)return;current=index;
+  scene.dataset.step=String(index);root.dataset.currentStep=String(index);
+  root.querySelector('[data-stage-title]').textContent=steps[index].title;
+  root.querySelector('[data-stage-status]').textContent=steps[index].status;
+  root.querySelector('[data-stage-description]').textContent=steps[index].caption;
+  root.querySelector('.business-map').setAttribute('aria-label',steps[index].label);
+  buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(index===i)));
  }
- function isManual(){return !allowMotion||matchMedia('(max-height: 600px)').matches;}
  function measure(){
-  if(isManual())return null;
-  const top=parseFloat(getComputedStyle(pin).top)||90;
-  const rect=scrollRegion.getBoundingClientRect();
-  const travel=Math.max(1,scrollRegion.offsetHeight-pin.offsetHeight);
+  if(!allowMotion||matchMedia('(max-height: 600px)').matches)return null;
+  const top=parseFloat(getComputedStyle(pin).top)||90,rect=scrollRegion.getBoundingClientRect(),travel=Math.max(1,scrollRegion.offsetHeight-pin.offsetHeight);
   return {top,rect,travel,progress:Math.max(0,Math.min(1,(top-rect.top)/travel))};
  }
- function renderScroll(){
-  animationFrame=0;
-  const measured=measure();
-  root.dataset.control=measured?'scroll':'manual';
-  if(!measured){pin.style.setProperty('--journey-progress',String((current+1)/4));return;}
-  pin.style.setProperty('--journey-progress',String(measured.progress));
-  setStep(Math.min(3,Math.floor(measured.progress*4)));
- }
- function schedule(){if(!animationFrame)animationFrame=requestAnimationFrame(renderScroll);}
- buttons.forEach((button,index)=>button.addEventListener('click',()=>{
-  const measured=measure();
-  if(!measured){setStep(index);pin.style.setProperty('--journey-progress',String((index+1)/4));return;}
-  const position=scrollY+measured.rect.top-measured.top+measured.travel*((index+.4)/4);
-  scrollTo({top:position,behavior:allowMotion?'smooth':'instant'});
- }));
- addEventListener('scroll',schedule,{passive:true});
- addEventListener('resize',schedule,{passive:true});
- setStep(0,false);
- renderScroll();
-
+ function render(){frame=0;const m=measure();root.dataset.control=m?'scroll':'manual';if(m)setStep(Math.min(2,Math.floor(m.progress*3)));pin.style.setProperty('--journey-progress',String(m?m.progress:(current+1)/3));}
+ function schedule(){if(!frame)frame=requestAnimationFrame(render);}
+ buttons.forEach((b,i)=>b.addEventListener('click',()=>{const m=measure();if(!m){setStep(i);render();return;}scrollTo({top:scrollY+m.rect.top-m.top+m.travel*((i+.35)/3),behavior:'smooth'});}));
+ addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule,{passive:true});setStep(0);render();
  // A short overview of the same wedding workflow plays in the hero.
  const hero=document.querySelector('.hero-scene');
  if(!hero)return;
