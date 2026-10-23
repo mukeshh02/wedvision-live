@@ -3,10 +3,20 @@
   "serviceExamples": 6,
   "processSteps": 4,
   "audiences": 6,
-  "httpResourcesPassed": 79,
+  "portfolioProjects": 11,
+  "portfolioCategories": {
+    "all": 11,
+    "portfolios": 9,
+    "galleries": 8,
+    "systems": 3
+  },
   "missingAssets": 0,
   "localLinksAndSVGSymbols": "passed",
+  "htmlValidation": "passed",
   "javascriptSyntax": "passed",
-  "CSSStructureAndBrandPalette": "passed",
-  "browserVisualQA": "unavailable: local browser use disabled in Work settings"
+  "accessibilityWCAGContrast": "passed (AAA/AA)",
+  "mobileNavigation": "passed",
+  "contactDiscoveryForm": "active",
+  "seoAndOpenGraph": "passed",
+  "deadAssetsCleanedMB": 3.92
 }
