@@ -1,0 +1,15 @@
+# Logs
+*.log
+server-error.log
+server-output.log
+
+# Python
+__pycache__/
+*.pyc
+
+# Vercel
+.vercel
+
+# System files
+.DS_Store
+Thumbs.db

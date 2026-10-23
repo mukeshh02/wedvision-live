@@ -1,0 +1,12 @@
+{
+  "page": "visual custom-software story",
+  "serviceExamples": 6,
+  "processSteps": 4,
+  "audiences": 6,
+  "httpResourcesPassed": 79,
+  "missingAssets": 0,
+  "localLinksAndSVGSymbols": "passed",
+  "javascriptSyntax": "passed",
+  "CSSStructureAndBrandPalette": "passed",
+  "browserVisualQA": "unavailable: local browser use disabled in Work settings"
+}
